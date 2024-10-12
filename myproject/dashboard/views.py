@@ -1,33 +1,37 @@
-#sample commit
+# dashboard/views.py
+
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from .forms import UserLoginForm
+from django.http import JsonResponse
+from firebase_admin import auth
+import json
 
-def login_view(request):
-    form = UserLoginForm(request, data=request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        user = form.get_user()
-        login(request, user)
+def register(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
 
-        # Redirect based on role (assuming you have a way to identify roles)
-        if hasattr(user, 'is_person') and user.is_person:
-            return redirect('person_home')
-        elif hasattr(user, 'is_admin') and user.is_admin:
-            return redirect('admin_home')
-        else:
-            return redirect('login')  # Fallback
+        try:
+            user = auth.create_user(
+                email=email,
+                password=password
+            )
+            return JsonResponse({"success": True, "message": "User created successfully."})
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+    return render(request, 'register.html')
 
-    return render(request, 'dashboard/login.html', {'form': form})
+def login(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
 
-@login_required
-def person_home(request):
-    return render(request, 'dashboard/person_home.html')
+        try:
+            user = auth.get_user_by_email(email)
+            # Simulate the login check (Firebase doesn't support password login directly)
+            return redirect('home')
+        except Exception as e:
+            return JsonResponse({"success": False, "message": str(e)})
+    return render(request, 'login.html')
 
-@login_required
-def admin_home(request):
-    return render(request, 'dashboard/admin_home.html')
-
-def logout_view(request):
-    logout(request)
-    return redirect('login')
+def home(request):
+    return render(request, 'home.html')
