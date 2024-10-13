@@ -1,30 +1,54 @@
-# Ignore Python bytecode
-_pycache_/
-*.py[cod]
-*.pyo
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
 
-# Ignore virtual environments
-venv/
-.env/
+# Python
+__pycache__/
+*.py[cod]
 env/
+venv/
+ENV/
 env.bak/
 venv.bak/
+.ipynb_checkpoints
 
-# Ignore Django migrations
-/migrations/
-!*/migrations/_init_.py
+# Java
+*.class
+*.log
+target/
 
-# Ignore database files
-*.sqlite3
-*.db
-
-# Ignore IDE-specific files
+# Android
+.gradle/
+build/
+captures/
+local.properties
 .idea/
+*.iml
+
+# iOS
+*.xcuserdatad/
+*.xcworkspace/
+*.xcodeproj/
+DerivedData/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Visual Studio Code
 .vscode/
 
-# Ignore log files
-*.log
+# Backup files
+*~
+*.bak
+*.tmp
+*.swp
 
-# Ignore static and media files
-/static/
-media/
+# Ignore all files in the build directory
+/build
+/dist
+/coverage
