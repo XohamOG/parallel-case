@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',  # Required for session handling
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -53,12 +53,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 ROOT_URLCONF = 'myproject.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # Add any global template directories here
+         'DIRS': [BASE_DIR / 'templates'],  # Add any global template directories here
         'APP_DIRS': True,  # This should be True to allow Django to find app templates
         'OPTIONS': {
             'context_processors': [
@@ -83,6 +84,11 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+import firebase_admin
+from firebase_admin import credentials, auth
+
+cred = credentials.Certificate(r'D:\parallel-case\template-13d9d-firebase-adminsdk-1gi4r-b32f77d41e.json')
+firebase_admin.initialize_app(cred)
 
 
 # Password validation

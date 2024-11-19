@@ -1,59 +1,70 @@
-# dashboard/views.py
-
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from .forms import UserLoginForm, UserRegistrationForm  # Assuming you have this form
-from firebase_admin import auth  # Firebase auth for user management
+from django.contrib import messages
+from .firebase_utils import register_user, authenticate_user
 
-def role_selection_view(request):
-    return render(request, 'dashboard/role_selection.html')
 
 def register_view(request):
+    """Handles user registration using Firebase."""
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        role = request.POST.get('role')  # Get the selected role (admin or person)
+        role = 'user'  # Or whatever role is appropriate
+        # Register user in Firebase
+        result = register_user(email, password,role)
+        
+        if isinstance(result, str):  # If result is an error message
+            messages.error(request, result)
+            return redirect('register')  # Use URL name, not template path
 
-        # Create the user in Firebase (you can customize this part)
-        try:
-            user = auth.create_user(
-                email=email,
-                password=password
-            )
-            # Here you can save the role in your user model
-            # Assuming you have a UserProfile model linked to Django's User model
-            # UserProfile.objects.create(user=user, is_person=(role == 'person'), is_admin=(role == 'admin'))
-            return redirect('login')  # Redirect to login after successful registration
-        except Exception as e:
-            return render(request, 'dashboard/register.html', {'error': str(e)})
+        messages.success(request, "Registration successful. Please log in.")
+        return redirect('login')  # Use URL name, not template path
 
     return render(request, 'dashboard/register.html')
 
 def login_view(request):
-    form = UserLoginForm(request, data=request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        user = form.get_user()
-        login(request, user)
+    """Handle user login using Firebase REST API."""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
 
-        # Redirect based on role (assuming you have a way to identify roles)
-        if hasattr(user, 'is_person') and user.is_person:
-            return redirect('person_home')
-        elif hasattr(user, 'is_admin') and user.is_admin:
-            return redirect('admin_home')
+        # Authenticate user with Firebase REST API
+        response = authenticate_user(email, password)
+
+        if isinstance(response, dict) and 'idToken' in response:
+            # Authentication successful
+            request.session['firebase_token'] = response['idToken']
+            request.session['user_email'] = email
+            messages.success(request, "Logged in successfully.")
+            return redirect('person')
         else:
-            return redirect('login')  # Fallback
+            # Handle authentication failure
+            messages.error(request, response)  # Error message from Firebase
+            return redirect('login')
 
-    return render(request, 'dashboard/login.html', {'form': form})
+    return render(request, 'dashboard/login.html')
 
-@login_required
+
+
 def person_home(request):
+    """Protected user home page."""
+    # Check if the Firebase token exists in the session
+    if not request.session.get('firebase_token') or not request.session.get('user_email'):
+        messages.error(request, "You must be logged in to access this page.")
+        return redirect('login')  # Ensure this points to the correct URL pattern for login
+    
     return render(request, 'dashboard/person_home.html')
 
-@login_required
+
 def admin_home(request):
+    """Protected admin home page."""
+    if not request.session.get('firebase_token'):
+        return redirect('login')
+
     return render(request, 'dashboard/admin_home.html')
 
+
 def logout_view(request):
-    logout(request)
+    """Logs the user out and clears the session."""
+    request.session.flush()  # Clears all session data
+    messages.success(request, "You have been logged out.")
     return redirect('login')
