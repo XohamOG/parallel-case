@@ -14,3 +14,7 @@ def person_home(request):
         return redirect('login')  # Ensure this points to the correct URL pattern for login
     
     return render(request, 'store/person_home.html')
+
+def catalog_view(request):
+    products = Product.objects.all()  # Get all products
+    return render(request, 'store/catalog.html', {'products': products})
