@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .firebase_utils import register_user, authenticate_user
-
+from store.views import person_home
 
 def register_view(request):
     """Handles user registration using Firebase."""
@@ -35,7 +35,7 @@ def login_view(request):
             request.session['firebase_token'] = response['idToken']
             request.session['user_email'] = email
             messages.success(request, "Logged in successfully.")
-            return redirect('person')
+            return redirect('store')
         else:
             # Handle authentication failure
             messages.error(request, response)  # Error message from Firebase
@@ -45,14 +45,6 @@ def login_view(request):
 
 
 
-def person_home(request):
-    """Protected user home page."""
-    # Check if the Firebase token exists in the session
-    if not request.session.get('firebase_token') or not request.session.get('user_email'):
-        messages.error(request, "You must be logged in to access this page.")
-        return redirect('login')  # Ensure this points to the correct URL pattern for login
-    
-    return render(request, 'dashboard/person_home.html')
 
 
 def admin_home(request):
