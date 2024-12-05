@@ -1,0 +1,28 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'store/styles.css' %}">
+
+<body>
+    <section id="catalog">
+        <div class="catalog-header">
+            <h2>Our Catalog</h2>
+            <p>Explore our latest collection of products</p>
+        </div>
+
+        <div class="catalog-container">
+            <!-- Loop through the products passed from the view -->
+            {% for product in products %}
+                <div class="catalog-item">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="catalog-item-image">
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.description }}</p>
+                    <p><strong>Price:</strong> ${{ product.price }}</p>
+                    <p><strong>Stock:</strong> {{ product.stock }}</p>
+                    <a href="#" class="add-to-cart">Add to Cart</a>
+                </div>
+            {% empty %}
+                <p>No products available at the moment.</p>
+            {% endfor %}
+        </div>
+    </section>
+</body>
