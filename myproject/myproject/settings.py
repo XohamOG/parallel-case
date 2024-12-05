@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import firebase_admin
 from firebase_admin import credentials
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -141,6 +142,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'dashboard.CustomUser'
 LOGIN_URL = 'login'
 
-import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
